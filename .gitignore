@@ -1,0 +1,30 @@
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+.coverage
+htmlcov/
+
+# Local configuration (the example is safe to commit)
+.env
+.env.*
+!.env.example
+
+# Raw data, transformed data, and generated model artifacts
+data/raw/
+data/processed/
+artifacts/
+reports/figures/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
