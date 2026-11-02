@@ -55,7 +55,11 @@ def separate_feature_target(
     if target_values.isna().any() or not target_values.isin([0, 1]).all():
         raise FeatureDatasetError("Target must contain only 0 and 1 without missing values.")
     target_frame["default_next_month"] = target_values.astype("int64")
-    target_index = target_frame.set_index("client_id", verify_integrity=True)
+    target_index = target_frame.set_index("client_id")
+    if not target_index.index.is_unique:
+        raise FeatureDatasetError(
+            "Target table contains duplicate client_id values after normalization."
+        )
     feature_id_values = feature_ids.tolist()
     if set(feature_id_values) != set(target_index.index.astype("int64").tolist()):
         raise FeatureDatasetError("Feature and target client IDs do not match exactly.")
