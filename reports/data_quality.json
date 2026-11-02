@@ -1,0 +1,172 @@
+{
+  "column_count": 25,
+  "duplicate_client_ids": 0,
+  "feature_count": 23,
+  "missing_values": {
+    "AGE": {
+      "count": 0,
+      "share": 0.0
+    },
+    "BILL_AMT1": {
+      "count": 0,
+      "share": 0.0
+    },
+    "BILL_AMT2": {
+      "count": 0,
+      "share": 0.0
+    },
+    "BILL_AMT3": {
+      "count": 0,
+      "share": 0.0
+    },
+    "BILL_AMT4": {
+      "count": 0,
+      "share": 0.0
+    },
+    "BILL_AMT5": {
+      "count": 0,
+      "share": 0.0
+    },
+    "BILL_AMT6": {
+      "count": 0,
+      "share": 0.0
+    },
+    "EDUCATION": {
+      "count": 0,
+      "share": 0.0
+    },
+    "LIMIT_BAL": {
+      "count": 0,
+      "share": 0.0
+    },
+    "MARRIAGE": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_0": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_2": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_3": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_4": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_5": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_6": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_AMT1": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_AMT2": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_AMT3": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_AMT4": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_AMT5": {
+      "count": 0,
+      "share": 0.0
+    },
+    "PAY_AMT6": {
+      "count": 0,
+      "share": 0.0
+    },
+    "SEX": {
+      "count": 0,
+      "share": 0.0
+    },
+    "client_id": {
+      "count": 0,
+      "share": 0.0
+    },
+    "default_next_month": {
+      "count": 0,
+      "share": 0.0
+    }
+  },
+  "policy": "Observed values are not recoded, imputed, dropped or winsorized at this stage. Interpretation and treatment are deferred until training-only analysis.",
+  "row_count": 30000,
+  "suspicious_values": {
+    "age_outside_18_to_100": 0,
+    "credit_limit_nonpositive": 0,
+    "negative_bill_amounts": {
+      "BILL_AMT1": 590,
+      "BILL_AMT2": 669,
+      "BILL_AMT3": 655,
+      "BILL_AMT4": 675,
+      "BILL_AMT5": 655,
+      "BILL_AMT6": 688
+    },
+    "negative_payment_amounts": {
+      "PAY_AMT1": 0,
+      "PAY_AMT2": 0,
+      "PAY_AMT3": 0,
+      "PAY_AMT4": 0,
+      "PAY_AMT5": 0,
+      "PAY_AMT6": 0
+    }
+  },
+  "target_counts": {
+    "0": 23364,
+    "1": 6636
+  },
+  "undocumented_category_codes": {
+    "EDUCATION": {
+      "0": 14,
+      "5": 280,
+      "6": 51
+    },
+    "MARRIAGE": {
+      "0": 54
+    },
+    "PAY_0": {
+      "-2": 2759,
+      "0": 14737
+    },
+    "PAY_2": {
+      "-2": 3782,
+      "0": 15730
+    },
+    "PAY_3": {
+      "-2": 4085,
+      "0": 15764
+    },
+    "PAY_4": {
+      "-2": 4348,
+      "0": 16455
+    },
+    "PAY_5": {
+      "-2": 4546,
+      "0": 16947
+    },
+    "PAY_6": {
+      "-2": 4895,
+      "0": 16286
+    }
+  },
+  "unique_client_ids": 30000,
+  "warnings": [
+    "Undocumented categorical codes present; original values preserved.",
+    "Negative bill amounts present; they may represent credit balances."
+  ]
+}
