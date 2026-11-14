@@ -1,4 +1,4 @@
-"""Command-line interface for data validation, PostgreSQL ETL and feature checks."""
+"""Command-line interface for data preparation, PostgreSQL ETL and train-only EDA."""
 
 import argparse
 import importlib
@@ -19,6 +19,13 @@ from credit_risk.data.fetch import SnapshotError, fetch_and_store, load_snapshot
 from credit_risk.data.quality import build_quality_report, save_quality_report
 from credit_risk.data.schema import DatasetSchemaError
 from credit_risk.features.build import FeatureDatasetError, load_feature_dataset
+from credit_risk.modeling.split import (
+    SPLIT_NAMES,
+    SplitError,
+    create_or_load_splits,
+    load_splits,
+    training_subset,
+)
 
 REQUIRED_MODULES = (
     "numpy",
@@ -95,9 +102,11 @@ def main(argv: list[str] | None = None) -> int:
         "--refresh", action="store_true", help="Download again instead of using local snapshot"
     )
     subparsers.add_parser("data-quality", help="Write data-quality reports from verified snapshot")
-    subparsers.add_parser("load-db", help="Load the verified snapshot into normalized PostgreSQL tables")
+    subparsers.add_parser("load-db", help="Load verified snapshot into PostgreSQL tables")
     subparsers.add_parser("db-analysis", help="Run named analytical SQL queries against PostgreSQL")
     subparsers.add_parser("check-features", help="Check the SQL feature view and target separation")
+    subparsers.add_parser("make-splits", help="Create or verify stratified client splits")
+    subparsers.add_parser("run-eda", help="Generate EDA and statistics on train partition only")
     args = parser.parse_args(argv)
 
     if args.command == "check-env":
@@ -106,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
         return check_database()
 
     raw_dir = Path.cwd() / "data" / "raw"
+    processed_dir = Path.cwd() / "data" / "processed"
     sql_dir = Path.cwd() / "sql"
 
     if args.command == "fetch-data":
@@ -151,12 +161,34 @@ def main(argv: list[str] | None = None) -> int:
                     print(json.dumps(rows, ensure_ascii=False, indent=2, default=str))
                 return 0
 
+            dataset = load_feature_dataset(engine)
             if args.command == "check-features":
-                dataset = load_feature_dataset(engine)
                 print("OK: feature view and target are aligned by client_id.")
                 print(f"Clients: {len(dataset.client_ids)}")
                 print(f"Model features: {dataset.X.shape[1]}")
                 print("client_id and default_next_month are excluded from X.")
+                return 0
+
+            if args.command == "make-splits":
+                assignments = create_or_load_splits(dataset, processed_dir)
+                print("OK: train/validation/test client splits are verified (seed=42).")
+                for name in SPLIT_NAMES:
+                    print(f"{name}: {(assignments['split'] == name).sum()}")
+                print(f"Saved in: {processed_dir}")
+                return 0
+
+            if args.command == "run-eda":
+                from credit_risk.reporting.eda import run_eda
+
+                assignments = load_splits(dataset, processed_dir)
+                X_train, y_train = training_subset(dataset, assignments)
+                report_path, stats_path, figures = run_eda(
+                    X_train, y_train, Path.cwd() / "reports"
+                )
+                print(f"OK: EDA completed on train only ({len(X_train)} clients).")
+                print(f"EDA: {report_path}")
+                print(f"Statistics: {stats_path}")
+                print(f"Figures generated: {len(figures)}")
                 return 0
         finally:
             engine.dispose()
@@ -166,6 +198,7 @@ def main(argv: list[str] | None = None) -> int:
         DatasetSchemaError,
         FeatureDatasetError,
         SnapshotError,
+        SplitError,
         SQLAlchemyError,
         ConnectionError,
         OSError,

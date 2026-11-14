@@ -1,121 +1,123 @@
 # Credit Risk Scoring System
 
-A reproducible educational Python project for estimating the probability of credit card default in the next month. **It is not intended for real credit decisions.**
+A reproducible educational system for analyzing credit-card payment defaults (UCI dataset 350). **Not for real credit decisions.**
 
-**Current implementation stage:** 2 — official data snapshot, Data Quality report, normalized PostgreSQL loading, analytical SQL and a leakage-safe feature/target interface. EDA and model training are not implemented yet.
+**Current stage: 3, EDA and statistical inference.** A prediction model has **not** yet been trained.
 
-## Architecture
+## Current data pipeline
 
 ```text
-UCI dataset 350
-    -> validated raw CSV + SHA-256 manifest
-    -> Data Quality report
-    -> PostgreSQL: clients / monthly_history / targets
-    -> SQL analytical queries (CTE, JOIN, window functions)
-    -> ml_feature_dataset view (predictors + client_id key only)
-    -> Python feature/target separation (X, y and IDs are separate)
-    -> later: train/validation/test, model pipelines and offline prediction
+UCI 350 -- fetch-data --> verified CSV + SHA-256 manifest
+                          |
+                          +--> data-quality --> reports/data_quality.md
+                          |
+                          +--> load-db --> PostgreSQL clients / monthly_history / targets
+                                              |
+                                              +--> SQL feature view (30 predictors)
+                                              |             + separate target by client_id
+                                              |
+                                              +--> make-splits (frozen 60/20/20)
+                                                        |
+                                                        +--> run-eda (TRAIN only)
+                                                                   |
+                                                                   +--> reports/eda.md
+                                                                   +--> reports/statistics.md
+                                                                   +--> reports/figures/*.png
 ```
 
-Python code lives under `src/credit_risk/`. SQL definitions and analytical queries live under `sql/`. Notebooks must call Python modules instead of duplicating project logic. PostgreSQL runs in Docker; Python runs on the host. Downloaded data and model artifacts are not committed to Git.
+Source: [UCI Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients), ID 350; I-Cheng Yeh; [DOI 10.24432/C55S3H](https://doi.org/10.24432/C55S3H); CC BY 4.0. Source observations are for April–September 2005, with the next-payment default as the label. The UCI source returns 30,000 clients, 23 input variables and a binary target. `data/raw/uci_350_original.csv` is a local UTF-8 CSV export of the official `ucimlrepo.data.original`, **not** the original XLS file bytes. The manifest records UCI source metadata, SHA-256 and acquisition time. Values are not automatically imputed, recoded or dropped.
 
-## Data provenance
+## Requirements and reproducibility
 
-- Dataset: [Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients), UCI Machine Learning Repository, dataset ID 350.
-- Original author: I-Cheng Yeh.
-- DOI: https://doi.org/10.24432/C55S3H
-- License: CC BY 4.0.
-- The project downloads the standardized table through `ucimlrepo.fetch_ucirepo(id=350)`. `data/raw/uci_350_original.csv` is a CSV export of `data.original`, not a byte-identical copy of the original XLS.
-- `data/raw/uci_350_manifest.json` records the source URL, retrieval timestamp, `ucimlrepo` version, dimensions and SHA-256. A changed or corrupted local snapshot fails validation.
-- Internally, `ID` is normalized to `client_id`, the target to `default_next_month`, and `X1`…`X23` headers, if returned by the source, are mapped to descriptive feature names. Source values are not recoded or imputed.
+Python 3.12, `uv`, PostgreSQL 16 in Docker Desktop (Linux containers / WSL2), Windows CMD. Python libraries include Pandas, NumPy, SciPy, scikit-learn, matplotlib, seaborn, SQLAlchemy and psycopg. Project dependencies are controlled by `pyproject.toml` and the committed `uv.lock`; the stage 3 update introduces **no new dependencies**.
 
-## Windows CMD setup
-
-Prerequisites: Git, Docker Desktop with Linux containers enabled, and `uv`. Run commands from the repository root in **CMD**:
+After cloning, from the repository directory in CMD:
 
 ```cmd
 uv python install 3.12
 uv sync --locked
 copy .env.example .env
-uv run --locked credit-risk check-env
-docker compose config
 docker compose up -d postgres
-docker compose ps
+uv run --locked credit-risk check-env
 uv run --locked credit-risk check-db
 ```
 
-If `uv.lock` does not exist in a fresh checkout, generate it with `uv lock` and commit the resulting lock file before using `--locked` commands.
+The `.env` file is ignored by Git. Example credentials in `.env.example` are **local-only**. PostgreSQL is bound to loopback on port 55432 by default. Run all CLI commands from the project root.
 
-`POSTGRES_PASSWORD` in `.env.example` is a public example for an isolated local environment, not a production secret. The real `.env` is ignored by Git. PostgreSQL is bound to `127.0.0.1` on port `55432` by default.
-
-## Stage 1: official download and data quality
+## Stage 1: raw data and Data Quality
 
 ```cmd
 uv run --locked credit-risk fetch-data
 uv run --locked credit-risk data-quality
-uv run --locked ruff check .
-uv run --locked pytest
 ```
 
-Outputs:
+- `data/raw/uci_350_original.csv` and `data/raw/uci_350_manifest.json` contain the cached source snapshot and provenance/hash metadata. Raw data is excluded from Git.
+- `reports/data_quality.md` and `.json` contain missing counts, schema/ID checks, unusual categorical codes and suspicious numeric values.
+- A malformed schema or modified snapshot is rejected. Unusual status codes and negative bill balances are **not** silently corrected.
 
-- `data/raw/uci_350_original.csv` — local CSV snapshot.
-- `data/raw/uci_350_manifest.json` — source metadata and SHA-256.
-- `reports/data_quality.json` and `reports/data_quality.md` — machine-readable and human-readable quality reports.
-
-The current checked snapshot contains 30,000 clients, 23 predictors and one target. The report found no missing values or duplicate client IDs. It also reports undocumented category codes and negative bill amounts without silently correcting them. Those values are retained for documented treatment decisions later.
-
-## Stage 2: PostgreSQL and analytical SQL
-
-Ensure the local PostgreSQL container is running and the verified snapshot exists. Then run:
+## Stage 2: PostgreSQL loading and SQL feature view
 
 ```cmd
-docker compose up -d postgres
-uv run --locked credit-risk check-db
 uv run --locked credit-risk load-db
 uv run --locked credit-risk db-analysis
 uv run --locked credit-risk check-features
+```
+
+Relational tables: `clients` (one row per client), `monthly_history` (one per client-month, month 1 = April 2005, month 6 = September 2005), `targets` (binary label, separate from predictors). An atomic repeatable load verifies 30,000 clients, 180,000 history records, 30,000 targets and 30,000 SQL feature rows. 
+
+- `sql/001_schema.sql` creates tables and constraints.
+- `sql/002_analytical_queries.sql` contains aggregates, JOIN, CTE and window functions `LAG` and `ROW_NUMBER`.
+- `sql/003_feature_dataset.sql` creates `ml_feature_dataset` with the 23 original predictor values, in six-month chronological order, and 7 derived features (30 total). The target is not present in the view.
+- `src/credit_risk/features/build.py` separately queries `X`, `y`, and `client_ids`, preserving alignment and preventing identifier/target leakage into `X`.
+
+## Stage 3: EDA and statistical inference
+
+**Critical order:** create a permanent stratified split **before** looking at target-dependent EDA. This stage uses the **train partition only**. Validation and test are reserved for model selection and final evaluation in later stages.
+
+```cmd
+uv run --locked credit-risk check-features
+uv run --locked credit-risk make-splits
+uv run --locked credit-risk run-eda
 uv run --locked ruff check .
 uv run --locked pytest
 ```
 
-`load-db` creates the normalized tables, replaces their project data inside one transaction, creates the SQL feature view and verifies counts. If the import fails, PostgreSQL rolls the transaction back. Running the command again does not create duplicate clients or client-month rows.
+`make-splits` creates exactly 60%/20%/20% stratified client partitions using seed `42` (30,000 clients -> 18,000 / 6,000 / 6,000). It creates:
 
-Expected post-load counts:
+- `data/processed/client_splits.csv`: client ID and assigned partition.
+- `data/processed/client_splits_meta.json`: seed, sizes, fingerprint of sorted client IDs/targets, and SHA-256 of saved split CSV.
 
-| Table/view | Expected rows | Key invariant |
-|---|---:|---|
-| `clients` | 30,000 | `client_id` primary key |
-| `monthly_history` | 180,000 | unique `(client_id, month_index)`; six periods per client |
-| `targets` | 30,000 | one binary target per client |
-| `ml_feature_dataset` | 30,000 | one feature row per client; target is not selected |
+Both files are local and ignored by Git. Subsequent runs **reuse the saved assignments**, do not resample, and fail if the labels or saved split file change. Keep them stable for stages 4–6. Back up these two files outside Git if needed for exact reproduction across computers. A fresh machine will reconstruct the same assignments with the same locked dependencies and source data.
 
-### Time mapping
+`run-eda` requires the saved split. It analyzes only the 18,000 train clients and generates:
 
-`month_index` is chronological: `1` = April 2005, `6` = September 2005. The status columns map as `PAY_6`, `PAY_5`, `PAY_4`, `PAY_3`, `PAY_2`, `PAY_0`; bill and payment columns map as suffixes `6`, `5`, `4`, `3`, `2`, `1` respectively. This is tested explicitly because the source's `PAY_0` naming differs from the other status columns.
+| Output | Contents |
+|---|---|
+| `reports/eda.md` | Train-only distributions, descriptive statistics, prevalence, group comparison, links to PNG charts, limitations |
+| `reports/eda_summary.json` | Structured descriptive statistics with count, mean, median, Q25/Q75, sample variance/std, IQR outlier counts |
+| `reports/statistics.md` | Two prespecified statistical tests with results and assumptions, 95% Wilson interval |
+| `reports/statistics.json` | Machine-readable test statistics, raw and Holm-adjusted p-values, effect sizes |
+| `reports/figures/age_histogram.png` | Train age distribution |
+| `reports/figures/credit_limit_histogram.png` | Train credit-limit distribution |
+| `reports/figures/credit_limit_by_default_boxplot.png` | Train credit limits grouped by outcome |
+| `reports/figures/spearman_correlation.png` | Selected train Spearman associations including outcome |
+| `reports/figures/default_rate_by_delinquency.png` | Train default rate by number of delinquent months |
 
-### Normalized schema
+**Hypothesis 1:** Chi-square independence of having at least one delinquent month vs default. Reject asymptotic test when any expected cell count is below 5. Phi coefficient describes magnitude. **Hypothesis 2:** two-sided Mann–Whitney U for credit-limit distributions across the two default groups. Report rank-biserial effect size. Correct both p-values by **Holm** (family-wise alpha 0.05). A 95% Wilson interval estimates the train default proportion.
 
-- `clients`: demographic and credit-limit fields.
-- `monthly_history`: one row per client and month, with raw repayment status, bill amount and payment amount.
-- `targets`: `default_next_month` in `{0, 1}`.
+**Statistical cautions:** p-value is not the probability of a true null hypothesis; Mann–Whitney does not automatically test median equality; confidence interval coverage is a repeated-sampling property; correlations are not causation; significance does not imply usefulness for prediction; independent observations and representative sampling are assumptions, not guarantees. Historical Taiwanese credit-card data should not be generalized to modern banking without evidence. Unusual category values and bill balances are preserved, not automatically changed. Numeric fields coded as categories are kept distinct from continuous descriptive variables.
 
-The schema keeps unusual categorical codes and negative bill balances as source values. Constraints enforce primary/foreign keys, valid month indices and a binary target; they do not attempt to reinterpret source categories.
+Reports are **generated from the real locally loaded PostgreSQL data**. No metric, conclusion or p-value is hard-coded. Raw data, saved client partitions and fitted models are git-ignored. Reviewed Markdown/JSON reports and the five generated PNG figures can be committed, so GitHub visitors can inspect actual EDA results and charts.
 
-### Analytical SQL and feature view
+For a notebook view, open `notebooks/01_exploratory_analysis.ipynb` after generating reports; it reuses project functions and outputs instead of implementing a second analysis pipeline.
 
-`sql/002_analytical_queries.sql` contains named queries for target prevalence, credit-limit/age summaries, monthly bill/payment summaries, repayment-status distributions, repeated delays, monthly bill changes with `LAG`, top payment totals with `ROW_NUMBER`, and join integrity. `credit-risk db-analysis` prints their real query results; results are not hard-coded.
+## Tests and future stages
 
-`sql/003_feature_dataset.sql` creates `ml_feature_dataset`, including the six monthly values and summary features such as maximum repayment status, count of delayed months, average bill/payment, six-month bill change and payment-to-absolute-bill ratio. It contains `client_id` as a join key but does **not** include `default_next_month`.
+```cmd
+uv run --locked ruff check .
+uv run --locked pytest
+```
 
-`credit_risk.features.build.load_feature_dataset()` runs separate SQL queries for features and target, aligns them by `client_id`, and returns three separate objects: `X`, `y` and `client_ids`. Neither `client_id` nor `default_next_month` is included in `X`. The ratio feature can be `NULL` if the denominator is zero; any missing-value treatment belongs in a later train-fitted ML pipeline, not in ETL.
+Unit tests check data integrity, chronology, feature/target separation, deterministic splits and statistical calculations. Stage 3 tests use synthetic data; integration with local PostgreSQL is verified by `make-splits` and `run-eda` CLI runs. GitHub Actions runs unit tests and Ruff, without requiring an external DB.
 
-## Checks and scope
-
-- `uv run --locked credit-risk check-env` validates Python and core imports.
-- `uv run --locked credit-risk check-db` checks PostgreSQL connectivity and major version 16.
-- `uv run --locked credit-risk load-db` verifies the 30,000 / 180,000 / 30,000 / 30,000 row counts, complete six-month history and client/target joins.
-- `uv run --locked credit-risk check-features` checks feature/target key alignment and leakage boundaries.
-- `uv run --locked ruff check .` and `uv run --locked pytest` run static checks and tests. Unit tests use synthetic data and do not require the live database; the CLI commands above perform local database integration checks.
-
-Later stages will add EDA and statistical tests, reproducible train/validation/test splits, baseline and additional models, evaluation, a saved Pipeline and offline prediction. No model metrics are claimed before those experiments are actually run.
+**Stage 4:** training-only preprocessing, DummyClassifier and logistic regression baseline, train/validation evaluation, metrics and leakage tests. **Stage 5:** Random Forest, boosting, CV and one-time test evaluation. **Stage 6:** full saved Pipeline, offline prediction, model card and reproducibility checks. No model quality claims exist before these experiments are run.

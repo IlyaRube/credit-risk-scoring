@@ -12,17 +12,17 @@ dist/
 .coverage
 htmlcov/
 
-# Local configuration (the example is safe to commit)
+# Local configuration
 .env
 .env.*
 !.env.example
 
-# Raw data, transformed data, and generated model artifacts
+# Untracked source snapshots, client partitions and fitted models
 data/raw/
 data/processed/
 artifacts/
-reports/figures/
 
+# Reports and lightweight figures remain versionable for portfolio review
 # IDE / OS
 .idea/
 .vscode/

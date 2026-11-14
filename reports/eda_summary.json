@@ -1,0 +1,335 @@
+{
+  "credit_limit_by_target": {
+    "0": {
+      "mean_credit_limit": 178564.13183050364,
+      "median_credit_limit": 150000.0,
+      "n": 14018
+    },
+    "1": {
+      "mean_credit_limit": 129593.16926167755,
+      "median_credit_limit": 90000.0,
+      "n": 3982
+    }
+  },
+  "default_rate_by_delinquent_month_count": [
+    {
+      "default_rate": 0.11435052932280289,
+      "delinquent_month_count": 0,
+      "n_clients": 11902
+    },
+    {
+      "default_rate": 0.29920963492660896,
+      "delinquent_month_count": 1,
+      "n_clients": 2657
+    },
+    {
+      "default_rate": 0.39931448157669236,
+      "delinquent_month_count": 2,
+      "n_clients": 1167
+    },
+    {
+      "default_rate": 0.49791376912378305,
+      "delinquent_month_count": 3,
+      "n_clients": 719
+    },
+    {
+      "default_rate": 0.5741710296684118,
+      "delinquent_month_count": 4,
+      "n_clients": 573
+    },
+    {
+      "default_rate": 0.621301775147929,
+      "delinquent_month_count": 5,
+      "n_clients": 169
+    },
+    {
+      "default_rate": 0.6986469864698647,
+      "delinquent_month_count": 6,
+      "n_clients": 813
+    }
+  ],
+  "descriptive_statistics": {
+    "age": {
+      "count": 18000,
+      "iqr_outlier_count": 145,
+      "max": 75.0,
+      "mean": 35.4225,
+      "median": 34.0,
+      "min": 21.0,
+      "missing_or_nonfinite": 0,
+      "q25": 28.0,
+      "q75": 41.0,
+      "std_sample": 9.155847302983291,
+      "variance_sample": 83.82953983554641
+    },
+    "avg_bill_amount": {
+      "count": 18000,
+      "iqr_outlier_count": 1554,
+      "max": 877313.8333333334,
+      "mean": 45259.29948148149,
+      "median": 21101.0,
+      "min": -20913.333333333332,
+      "missing_or_nonfinite": 0,
+      "q25": 4861.333333333333,
+      "q75": 57369.08333333333,
+      "std_sample": 63607.74412384316,
+      "variance_sample": 4045945112.5243034
+    },
+    "avg_payment_amount": {
+      "count": 18000,
+      "iqr_outlier_count": 1682,
+      "max": 627344.3333333334,
+      "mean": 5307.018055555555,
+      "median": 2420.166666666667,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 1117.3333333333333,
+      "q75": 5680.041666666667,
+      "std_sample": 10311.534442477636,
+      "variance_sample": 106327742.55840255
+    },
+    "bill_amount_change_6m": {
+      "count": 18000,
+      "iqr_outlier_count": 2124,
+      "max": 518602.0,
+      "mean": 12433.049277777778,
+      "median": 930.5,
+      "min": -399983.0,
+      "missing_or_nonfinite": 0,
+      "q25": -3010.0,
+      "q75": 20000.5,
+      "std_sample": 43652.43160723792,
+      "variance_sample": 1905534785.224584
+    },
+    "bill_amount_m1": {
+      "count": 18000,
+      "iqr_outlier_count": 1627,
+      "max": 961664.0,
+      "mean": 39040.36105555556,
+      "median": 17143.0,
+      "min": -209051.0,
+      "missing_or_nonfinite": 0,
+      "q25": 1214.0,
+      "q75": 49341.75,
+      "std_sample": 59684.98581468384,
+      "variance_sample": 3562297531.699011
+    },
+    "bill_amount_m2": {
+      "count": 18000,
+      "iqr_outlier_count": 1660,
+      "max": 927171.0,
+      "mean": 40562.436111111114,
+      "median": 18165.5,
+      "min": -81334.0,
+      "missing_or_nonfinite": 0,
+      "q25": 1755.0,
+      "q75": 50493.5,
+      "std_sample": 61102.66346322976,
+      "variance_sample": 3733535482.300713
+    },
+    "bill_amount_m3": {
+      "count": 18000,
+      "iqr_outlier_count": 1573,
+      "max": 891586.0,
+      "mean": 43623.105388888885,
+      "median": 18991.0,
+      "min": -46627.0,
+      "missing_or_nonfinite": 0,
+      "q25": 2400.0,
+      "q75": 55388.0,
+      "std_sample": 64747.222379946754,
+      "variance_sample": 4192202805.9182777
+    },
+    "bill_amount_m4": {
+      "count": 18000,
+      "iqr_outlier_count": 1516,
+      "max": 855086.0,
+      "mean": 47318.35588888889,
+      "median": 20074.0,
+      "min": -61506.0,
+      "missing_or_nonfinite": 0,
+      "q25": 2720.0,
+      "q75": 60420.0,
+      "std_sample": 69066.95003790151,
+      "variance_sample": 4770243587.537984
+    },
+    "bill_amount_m5": {
+      "count": 18000,
+      "iqr_outlier_count": 1435,
+      "max": 983931.0,
+      "mean": 49538.12811111111,
+      "median": 21226.5,
+      "min": -69777.0,
+      "missing_or_nonfinite": 0,
+      "q25": 3049.5,
+      "q75": 64552.0,
+      "std_sample": 71646.06450216974,
+      "variance_sample": 5133158558.649068
+    },
+    "bill_amount_m6": {
+      "count": 18000,
+      "iqr_outlier_count": 1446,
+      "max": 964511.0,
+      "mean": 51473.41033333333,
+      "median": 22344.5,
+      "min": -165580.0,
+      "missing_or_nonfinite": 0,
+      "q25": 3594.0,
+      "q75": 67571.0,
+      "std_sample": 73956.51070254981,
+      "variance_sample": 5469565475.296366
+    },
+    "delinquent_month_count": {
+      "count": 18000,
+      "iqr_outlier_count": 2274,
+      "max": 6.0,
+      "mean": 0.8423888888888889,
+      "median": 0.0,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 0.0,
+      "q75": 1.0,
+      "std_sample": 1.557888248266648,
+      "variance_sample": 2.4270157940873256
+    },
+    "limit_bal": {
+      "count": 18000,
+      "iqr_outlier_count": 101,
+      "max": 1000000.0,
+      "mean": 167730.66666666666,
+      "median": 140000.0,
+      "min": 10000.0,
+      "missing_or_nonfinite": 0,
+      "q25": 50000.0,
+      "q75": 240000.0,
+      "std_sample": 129767.65003373343,
+      "variance_sample": 16839642995.277515
+    },
+    "max_repayment_status": {
+      "count": 18000,
+      "iqr_outlier_count": 66,
+      "max": 8.0,
+      "mean": 0.443,
+      "median": 0.0,
+      "min": -2.0,
+      "missing_or_nonfinite": 0,
+      "q25": 0.0,
+      "q75": 2.0,
+      "std_sample": 1.3449768061322973,
+      "variance_sample": 1.8089626090338353
+    },
+    "payment_amount_m1": {
+      "count": 18000,
+      "iqr_outlier_count": 1773,
+      "max": 527143.0,
+      "mean": 5280.174555555555,
+      "median": 1500.0,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 106.75,
+      "q75": 4000.0,
+      "std_sample": 17970.490060745837,
+      "variance_sample": 322938513.02336496
+    },
+    "payment_amount_m2": {
+      "count": 18000,
+      "iqr_outlier_count": 1768,
+      "max": 417990.0,
+      "mean": 4808.2692777777775,
+      "median": 1526.0,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 242.5,
+      "q75": 4057.0,
+      "std_sample": 15150.538902932463,
+      "variance_sample": 229538829.04927
+    },
+    "payment_amount_m3": {
+      "count": 18000,
+      "iqr_outlier_count": 1809,
+      "max": 621000.0,
+      "mean": 4839.54,
+      "median": 1500.0,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 300.0,
+      "q75": 4100.0,
+      "std_sample": 15181.750459878222,
+      "variance_sample": 230485547.02601257
+    },
+    "payment_amount_m4": {
+      "count": 18000,
+      "iqr_outlier_count": 1568,
+      "max": 896040.0,
+      "mean": 5288.637833333333,
+      "median": 1854.0,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 390.0,
+      "q75": 4600.0,
+      "std_sample": 18530.487163105827,
+      "variance_sample": 343378954.50202984
+    },
+    "payment_amount_m5": {
+      "count": 18000,
+      "iqr_outlier_count": 1663,
+      "max": 1215471.0,
+      "mean": 5940.2872777777775,
+      "median": 2021.0,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 862.0,
+      "q75": 5000.0,
+      "std_sample": 21311.16415915651,
+      "variance_sample": 454165717.8185169
+    },
+    "payment_amount_m6": {
+      "count": 18000,
+      "iqr_outlier_count": 1608,
+      "max": 873552.0,
+      "mean": 5685.199388888889,
+      "median": 2138.5,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 1000.0,
+      "q75": 5045.75,
+      "std_sample": 16898.341625206034,
+      "variance_sample": 285553949.68217087
+    },
+    "payment_to_abs_bill_ratio": {
+      "count": 17483,
+      "iqr_outlier_count": 437,
+      "max": 797.0,
+      "mean": 0.49913840571311996,
+      "median": 0.09636726546906188,
+      "min": 0.0,
+      "missing_or_nonfinite": 517,
+      "q25": 0.04260069546351166,
+      "q75": 0.6176978890449955,
+      "std_sample": 7.002724253896721,
+      "variance_sample": 49.03814697611339
+    },
+    "total_payment_amount": {
+      "count": 18000,
+      "iqr_outlier_count": 1682,
+      "max": 3764066.0,
+      "mean": 31842.108333333334,
+      "median": 14521.0,
+      "min": 0.0,
+      "missing_or_nonfinite": 0,
+      "q25": 6704.0,
+      "q75": 34080.25,
+      "std_sample": 61869.20665486581,
+      "variance_sample": 3827798732.102492
+    }
+  },
+  "n_clients": 18000,
+  "n_features": 30,
+  "outlier_rule": "IQR fences (Q1 - 1.5*IQR, Q3 + 1.5*IQR); no observations removed.",
+  "scope": "train_only",
+  "target_counts": {
+    "0": 14018,
+    "1": 3982
+  },
+  "target_rate": 0.2212222222222222
+}

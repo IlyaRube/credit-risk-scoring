@@ -1,0 +1,47 @@
+{
+  "alpha": 0.05,
+  "default_count": 3982,
+  "default_rate": 0.2212222222222222,
+  "multiplicity": "Holm-Bonferroni correction across the two prespecified tests.",
+  "n_clients": 18000,
+  "scope": "train_only",
+  "tests": [
+    {
+      "chi2": 2329.0998511505945,
+      "contingency": {
+        "has_delay": {
+          "default": 2621,
+          "no_default": 3477
+        },
+        "no_delay": {
+          "default": 1361,
+          "no_default": 10541
+        }
+      },
+      "degrees_of_freedom": 1,
+      "holm_adjusted_p": 0.0,
+      "min_expected_frequency": 1349.0131111111111,
+      "name": "chi_square_any_delinquency_vs_default",
+      "null": "Any historical delinquency and default are statistically independent.",
+      "p_value": 0.0,
+      "phi_effect_size": 0.3597143813847773
+    },
+    {
+      "holm_adjusted_p": 7.547699812454998e-121,
+      "median_limit_default": 90000.0,
+      "median_limit_no_default": 150000.0,
+      "n_default": 3982,
+      "n_no_default": 14018,
+      "name": "mann_whitney_credit_limit_by_default",
+      "null": "The credit-limit distributions are the same in both default groups.",
+      "p_value": 7.547699812454998e-121,
+      "rank_biserial_effect_size": 0.2420610252198525,
+      "u_statistic": 34665722.0
+    }
+  ],
+  "wilson_ci": {
+    "confidence": 0.95,
+    "lower": 0.2152184257332431,
+    "upper": 0.22734498369496967
+  }
+}
