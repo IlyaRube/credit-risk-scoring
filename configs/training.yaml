@@ -1,0 +1,6 @@
+# Stage 4 baseline: fixed settings, no hyperparameter search.
+random_state: 42
+logistic:
+  C: 1.0
+  max_iter: 2000
+threshold_selection: max_validation_f1

@@ -1,0 +1,251 @@
+{
+  "stage": 4,
+  "seed": 42,
+  "configuration": {
+    "C": 1.0,
+    "max_iter": 2000,
+    "solver": "lbfgs"
+  },
+  "threshold_rule": "max validation F1; highest threshold for exact ties; predict >= threshold",
+  "split_sha256": "0daf2582496a2db65d60eedad81126db12c7f95e8535fdb906e1cd83494042cd",
+  "train_clients": 18000,
+  "validation_clients": 6000,
+  "test_clients_reserved": 6000,
+  "test_evaluated": false,
+  "train_default_rate": 0.2212222222222222,
+  "validation_default_rate": 0.22116666666666668,
+  "input_features": [
+    "limit_bal",
+    "sex",
+    "education",
+    "marriage",
+    "age",
+    "repayment_status_m1",
+    "repayment_status_m2",
+    "repayment_status_m3",
+    "repayment_status_m4",
+    "repayment_status_m5",
+    "repayment_status_m6",
+    "bill_amount_m1",
+    "bill_amount_m2",
+    "bill_amount_m3",
+    "bill_amount_m4",
+    "bill_amount_m5",
+    "bill_amount_m6",
+    "payment_amount_m1",
+    "payment_amount_m2",
+    "payment_amount_m3",
+    "payment_amount_m4",
+    "payment_amount_m5",
+    "payment_amount_m6",
+    "max_repayment_status",
+    "delinquent_month_count",
+    "avg_bill_amount",
+    "avg_payment_amount",
+    "total_payment_amount",
+    "bill_amount_change_6m",
+    "payment_to_abs_bill_ratio"
+  ],
+  "categorical_features": [
+    "sex",
+    "education",
+    "marriage",
+    "repayment_status_m1",
+    "repayment_status_m2",
+    "repayment_status_m3",
+    "repayment_status_m4",
+    "repayment_status_m5",
+    "repayment_status_m6",
+    "max_repayment_status"
+  ],
+  "numeric_features": [
+    "limit_bal",
+    "age",
+    "bill_amount_m1",
+    "bill_amount_m2",
+    "bill_amount_m3",
+    "bill_amount_m4",
+    "bill_amount_m5",
+    "bill_amount_m6",
+    "payment_amount_m1",
+    "payment_amount_m2",
+    "payment_amount_m3",
+    "payment_amount_m4",
+    "payment_amount_m5",
+    "payment_amount_m6",
+    "delinquent_month_count",
+    "avg_bill_amount",
+    "avg_payment_amount",
+    "total_payment_amount",
+    "bill_amount_change_6m",
+    "payment_to_abs_bill_ratio"
+  ],
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "models": {
+    "dummy": {
+      "train_at_0_5": {
+        "threshold": 0.5,
+        "roc_auc": 0.5,
+        "average_precision": 0.2212222222222222,
+        "brier_score": 0.17228295061728394,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion_matrix": [
+          [
+            14018,
+            0
+          ],
+          [
+            3982,
+            0
+          ]
+        ]
+      },
+      "validation_at_0_5": {
+        "threshold": 0.5,
+        "roc_auc": 0.5,
+        "average_precision": 0.22116666666666668,
+        "brier_score": 0.17225197530864197,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "confusion_matrix": [
+          [
+            4673,
+            0
+          ],
+          [
+            1327,
+            0
+          ]
+        ]
+      },
+      "validation_at_selected_threshold": {
+        "threshold": 0.2212222222222222,
+        "roc_auc": 0.5,
+        "average_precision": 0.22116666666666668,
+        "brier_score": 0.17225197530864197,
+        "precision": 0.22116666666666668,
+        "recall": 1.0,
+        "f1": 0.362221918929985,
+        "confusion_matrix": [
+          [
+            0,
+            4673
+          ],
+          [
+            0,
+            1327
+          ]
+        ]
+      }
+    },
+    "logistic": {
+      "train_at_0_5": {
+        "threshold": 0.5,
+        "roc_auc": 0.7768662612803414,
+        "average_precision": 0.5608216413968657,
+        "brier_score": 0.13354339326398745,
+        "precision": 0.6922352941176471,
+        "recall": 0.3694123556002009,
+        "f1": 0.48174226297691175,
+        "confusion_matrix": [
+          [
+            13364,
+            654
+          ],
+          [
+            2511,
+            1471
+          ]
+        ]
+      },
+      "validation_at_0_5": {
+        "threshold": 0.5,
+        "roc_auc": 0.7567481488278396,
+        "average_precision": 0.5162305512950288,
+        "brier_score": 0.14023605529474875,
+        "precision": 0.6490963855421686,
+        "recall": 0.32479276563677467,
+        "f1": 0.43294826720241086,
+        "confusion_matrix": [
+          [
+            4440,
+            233
+          ],
+          [
+            896,
+            431
+          ]
+        ]
+      },
+      "validation_at_selected_threshold": {
+        "threshold": 0.257803791541131,
+        "roc_auc": 0.7567481488278396,
+        "average_precision": 0.5162305512950288,
+        "brier_score": 0.14023605529474875,
+        "precision": 0.4989648033126294,
+        "recall": 0.544837980406933,
+        "f1": 0.520893371757925,
+        "confusion_matrix": [
+          [
+            3947,
+            726
+          ],
+          [
+            604,
+            723
+          ]
+        ]
+      }
+    }
+  },
+  "logistic_top_coefficients": [
+    {
+      "feature": "categorical__repayment_status_m6_0",
+      "coefficient": -1.0926437403571625
+    },
+    {
+      "feature": "categorical__max_repayment_status_-2",
+      "coefficient": -0.8835235918343236
+    },
+    {
+      "feature": "categorical__marriage_0",
+      "coefficient": -0.8495651035242818
+    },
+    {
+      "feature": "categorical__repayment_status_m5_4",
+      "coefficient": -0.8483590826031432
+    },
+    {
+      "feature": "categorical__repayment_status_m6_3",
+      "coefficient": 0.815378088659735
+    },
+    {
+      "feature": "categorical__repayment_status_m3_5",
+      "coefficient": -0.7946328587065391
+    },
+    {
+      "feature": "categorical__education_5",
+      "coefficient": -0.7140982198554936
+    },
+    {
+      "feature": "categorical__education_4",
+      "coefficient": -0.6749474212574463
+    },
+    {
+      "feature": "categorical__repayment_status_m6_-2",
+      "coefficient": -0.6673030209816458
+    },
+    {
+      "feature": "categorical__repayment_status_m6_2",
+      "coefficient": 0.6550956328840973
+    }
+  ]
+}

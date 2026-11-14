@@ -1,4 +1,4 @@
-"""Command-line interface for data preparation, PostgreSQL ETL and train-only EDA."""
+"""Command-line interface for data preparation, PostgreSQL ETL train-only EDA and baseline training."""
 
 import argparse
 import importlib
@@ -107,6 +107,7 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("check-features", help="Check the SQL feature view and target separation")
     subparsers.add_parser("make-splits", help="Create or verify stratified client splits")
     subparsers.add_parser("run-eda", help="Generate EDA and statistics on train partition only")
+    subparsers.add_parser("train-baseline", help="Fit baseline models on train; evaluate validation")
     args = parser.parse_args(argv)
 
     if args.command == "check-env":
@@ -175,6 +176,25 @@ def main(argv: list[str] | None = None) -> int:
                 for name in SPLIT_NAMES:
                     print(f"{name}: {(assignments['split'] == name).sum()}")
                 print(f"Saved in: {processed_dir}")
+                return 0
+
+            if args.command == "train-baseline":
+                from credit_risk.modeling.train import load_baseline_config, run_baseline
+
+                assignments = load_splits(dataset, processed_dir)
+                config = load_baseline_config(Path.cwd() / "configs" / "training.yaml")
+                summary = run_baseline(
+                    dataset, assignments, config,
+                    reports_dir=Path.cwd() / "reports",
+                    artifacts_dir=Path.cwd() / "artifacts" / "baseline",
+                )
+                print("OK: baseline models fitted on train; evaluated on validation only.")
+                print(f"Train: {summary['train_clients']}; validation: {summary['validation_clients']}")
+                print(f"Test reserved: {summary['test_clients_reserved']} (not evaluated).")
+                for name, result in summary["models"].items():
+                    metrics = result["validation_at_selected_threshold"]
+                    print(f"{name}: ROC-AUC={metrics['roc_auc']:.6f}, AP={metrics['average_precision']:.6f}, F1={metrics['f1']:.6f}, threshold={metrics['threshold']:.6f}")
+                print("Report: reports/baseline.md")
                 return 0
 
             if args.command == "run-eda":

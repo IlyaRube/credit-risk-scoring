@@ -2,7 +2,7 @@
 
 A reproducible educational system for analyzing credit-card payment defaults (UCI dataset 350). **Not for real credit decisions.**
 
-**Current stage: 3, EDA and statistical inference.** A prediction model has **not** yet been trained.
+**Current stage: 4, baseline machine learning.** Train-only preprocessing, Dummy and logistic regression; results are generated locally, and test evaluation is reserved for stage 5.
 
 ## Current data pipeline
 
@@ -111,6 +111,39 @@ Reports are **generated from the real locally loaded PostgreSQL data**. No metri
 
 For a notebook view, open `notebooks/01_exploratory_analysis.ipynb` after generating reports; it reuses project functions and outputs instead of implementing a second analysis pipeline.
 
+## Stage 4: fixed baseline models
+
+Run from the repository root after PostgreSQL has been loaded and the stage 3 splits exist. **Do not regenerate the frozen splits.**
+
+```cmd
+uv run --locked credit-risk train-baseline
+uv run --locked ruff check .
+uv run --locked pytest
+```
+
+`configs/training.yaml` fixes seed 42, logistic regression C=1.0 and max_iter=2000. `modeling/train.py` reads the existing feature dataset and saved assignments, and fits two independent sklearn pipelines on train (18,000 clients):
+
+- DummyClassifier (`strategy=prior`): returns the training default prevalence, regardless of input. A ranking baseline with no learned feature relationships.
+- LogisticRegression (`lbfgs`, default L2 penalty): numeric median imputation and StandardScaler; nominal codes (sex, education, marriage, six repayment statuses and maximum repayment status) use train-fitted most-frequent imputation and one-hot encoding with unknown categories ignored. Remaining features are numeric. No rebalancing or hyperparameter search is performed.
+
+Both pipelines use the same 30 SQL inputs; categorical encoding expands the matrix internally. Null values such as the ratio with a zero denominator are handled by train-fitted imputers. Neither client ID nor the target is a feature. Validation is transformed and predicted without fitting, and the test partition is not scored.
+
+`modeling/evaluate.py` calculates ROC-AUC, average precision, Brier score, precision, recall, F1 and a 2x2 confusion matrix (rows actual, columns predicted, label order 0/1). It selects the threshold maximizing validation F1 separately for each model (highest threshold on exact ties; prediction is positive when probability >= threshold). The report includes train and validation metrics at 0.5 plus validation metrics at the selected threshold. The latter are selection-dependent, not unbiased final estimates. No final model is selected in stage 4. Stage 5 will use train-only cross-validation and a common documented selection policy, then evaluate the final choice once on the untouched test partition.
+
+Generated files:
+
+| File | Contents |
+|---|---|
+| `reports/baseline.md` | Actual metrics, model comparison, coefficients, limitations and figures |
+| `reports/baseline.json` | Machine-readable metrics, configuration, library versions, split hash and feature lists |
+| `reports/figures/baseline_validation_roc.png` | Validation ROC curves |
+| `reports/figures/baseline_validation_pr.png` | Validation precision-recall curves |
+| `reports/figures/baseline_validation_calibration.png` | Validation reliability curves (no calibration model fitted) |
+| `artifacts/baseline/dummy.joblib`, `logistic.joblib` | Local fitted pipelines, including preprocessors |
+| `artifacts/baseline/metadata.json` | Input schema, configuration, selected thresholds, metrics, split hash and versions |
+
+Reports and figures may be published after review; `artifacts/` remains ignored. Only load locally generated trusted joblib files. Model coefficients are descriptive associations, not causal effects; correlated features and demographic fields require caution. This is an educational baseline, not a lending decision system.
+
 ## Tests and future stages
 
 ```cmd
@@ -120,4 +153,4 @@ uv run --locked pytest
 
 Unit tests check data integrity, chronology, feature/target separation, deterministic splits and statistical calculations. Stage 3 tests use synthetic data; integration with local PostgreSQL is verified by `make-splits` and `run-eda` CLI runs. GitHub Actions runs unit tests and Ruff, without requiring an external DB.
 
-**Stage 4:** training-only preprocessing, DummyClassifier and logistic regression baseline, train/validation evaluation, metrics and leakage tests. **Stage 5:** Random Forest, boosting, CV and one-time test evaluation. **Stage 6:** full saved Pipeline, offline prediction, model card and reproducibility checks. No model quality claims exist before these experiments are run.
+**Stage 4:** baseline code, train-only preprocessing, validation metrics and leakage tests implemented; run `train-baseline` to generate real results. **Stage 5:** Random Forest, boosting, CV and one-time test evaluation. **Stage 6:** full saved Pipeline, offline prediction, model card and reproducibility checks. No model quality claims exist before these experiments are run.
