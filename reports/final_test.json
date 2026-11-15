@@ -1,0 +1,28 @@
+{
+  "stage": 5,
+  "selected_model": "hist_gradient_boosting",
+  "test_evaluated": true,
+  "test_clients": 6000,
+  "test_default_rate": 0.22116666666666668,
+  "split_sha256": "0daf2582496a2db65d60eedad81126db12c7f95e8535fdb906e1cd83494042cd",
+  "pipeline_sha256": "1370a751a6147bed4c257c0d9f1da328b02131df902fff44d6d92dd31009f3f7",
+  "metrics": {
+    "threshold": 0.2610171716843173,
+    "roc_auc": 0.7903713729450929,
+    "average_precision": 0.5800913556181311,
+    "brier_score": 0.13147668361293077,
+    "precision": 0.5203197868087941,
+    "recall": 0.5885455915599096,
+    "f1": 0.5523338048090524,
+    "confusion_matrix": [
+      [
+        3953,
+        720
+      ],
+      [
+        546,
+        781
+      ]
+    ]
+  }
+}

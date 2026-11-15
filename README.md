@@ -2,7 +2,7 @@
 
 A reproducible educational system for analyzing credit-card payment defaults (UCI dataset 350). **Not for real credit decisions.**
 
-**Current stage: 4, baseline machine learning.** Train-only preprocessing, Dummy and logistic regression; results are generated locally, and test evaluation is reserved for stage 5.
+**Current stage: 5, model comparison and final holdout evaluation.** Dummy, logistic regression, Random Forest and histogram gradient boosting; model selection on validation and one-time evaluation of the frozen winner on test. Metrics are generated locally.
 
 ## Current data pipeline
 
@@ -144,6 +144,45 @@ Generated files:
 
 Reports and figures may be published after review; `artifacts/` remains ignored. Only load locally generated trusted joblib files. Model coefficients are descriptive associations, not causal effects; correlated features and demographic fields require caution. This is an educational baseline, not a lending decision system.
 
+## Stage 5: model comparison and final holdout evaluation
+
+Keep the original frozen splits and the same locked dependencies. This stage does not change the SQL feature schema or baseline configuration. From the repository root:
+
+```cmd
+uv run --locked credit-risk check-db
+uv run --locked credit-risk compare-models
+type reports\comparison.md
+```
+
+`compare-models` refits Dummy and the fixed logistic baseline on train, then runs three-fold stratified CV (shuffle=True, seed=42, ROC-AUC scoring) on train only for the two additional models. All preprocessing is inside each CV pipeline and is fitted only on the training part of each fold. Four combinations per new model keep the search small:
+
+| Model | Fixed settings | Search grid |
+|---|---|---|
+| Random Forest | 120 trees, sqrt features, seed 42 | max_depth: 8 / None; min_samples_leaf: 5 / 20 |
+| HistGradientBoosting | 120 iterations, min_samples_leaf=20, early stopping disabled, seed 42 | learning_rate: 0.05 / 0.1; max_leaf_nodes: 15 / 31 |
+
+The best parameters per search are refitted on the full **train** partition. All four models are compared on the same validation clients. Each threshold maximizes validation F1 (highest threshold for ties). Among logistic, forest and boosting, select the highest validation ROC-AUC, then AP, then lower Brier, then fixed order (logistic, forest, boosting). Dummy is the reference, not a candidate. No model improvement is guaranteed. The selected model remains trained on train only; there is no refit using validation. The validation report also includes permutation importance (ROC-AUC decrease, three repeats per original feature; associations, not causality).
+
+The selected fitted pipeline is frozen in `artifacts/selected/selected.joblib`. Its metadata records the input feature order, versions, seed, search and baseline settings, selected threshold, split fingerprint, development-data fingerprint and pipeline SHA-256. Only load trusted local joblib files. The selection command **does not score test**.
+
+Review the comparison report, then run the following exactly once for the final selected pipeline:
+
+```cmd
+uv run --locked credit-risk evaluate-test
+type reports\final_test.md
+```
+
+`evaluate-test` validates the frozen model and metadata, predicts the test partition without fitting, and evaluates using the unchanged validation-selected threshold. It writes a result marker `reports/final_test.json` and refuses subsequent evaluations or new selection in the same checkout. Do not delete the marker to tune against test. If visualization fails after scoring, the JSON still preserves the final metrics. For a clean reproduction on a fresh machine, preserve the published final report as a reference and reconstruct the frozen model in a separate experimental checkout; stage 6 will add an explicit reconstruction/offline-prediction workflow. A local artifact must be retained for prediction; it is not committed.
+
+Outputs:
+
+- `reports/comparison.md`, `reports/comparison.json`: validation comparison, all CV trials, selection rule and feature importance.
+- `reports/final_test.md`, `reports/final_test.json`: final test metrics for the selected pipeline only.
+- `reports/figures/comparison_validation_{roc,pr,calibration}.png` and `reports/figures/final_test_{roc,pr,calibration}.png`: ranking and descriptive calibration plots.
+- `artifacts/selected/selected.joblib`, `artifacts/selected/metadata.json`: local selected pipeline and its reproducibility metadata.
+
+The final test report is an independent holdout estimate only insofar as the test was not used to design or tune the model; stage 1/2 full-dataset integrity and descriptive SQL checks were not used for model selection. No causal or production lending claims are justified. The fixed train-only historical dataset limits external validity.
+
 ## Tests and future stages
 
 ```cmd
@@ -153,4 +192,4 @@ uv run --locked pytest
 
 Unit tests check data integrity, chronology, feature/target separation, deterministic splits and statistical calculations. Stage 3 tests use synthetic data; integration with local PostgreSQL is verified by `make-splits` and `run-eda` CLI runs. GitHub Actions runs unit tests and Ruff, without requiring an external DB.
 
-**Stage 4:** baseline code, train-only preprocessing, validation metrics and leakage tests implemented; run `train-baseline` to generate real results. **Stage 5:** Random Forest, boosting, CV and one-time test evaluation. **Stage 6:** full saved Pipeline, offline prediction, model card and reproducibility checks. No model quality claims exist before these experiments are run.
+**Stage 5:** model comparison, train-only CV and frozen final test evaluation implemented; run the commands above to generate real results. **Stage 6:** offline prediction, model card and reproducibility checks. No new model-quality claims exist before the experiments are run.

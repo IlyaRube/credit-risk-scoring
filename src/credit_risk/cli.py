@@ -108,6 +108,8 @@ def main(argv: list[str] | None = None) -> int:
     subparsers.add_parser("make-splits", help="Create or verify stratified client splits")
     subparsers.add_parser("run-eda", help="Generate EDA and statistics on train partition only")
     subparsers.add_parser("train-baseline", help="Fit baseline models on train; evaluate validation")
+    subparsers.add_parser("compare-models", help="Train-only CV and validation model selection")
+    subparsers.add_parser("evaluate-test", help="Evaluate the frozen selected model on test once")
     args = parser.parse_args(argv)
 
     if args.command == "check-env":
@@ -195,6 +197,33 @@ def main(argv: list[str] | None = None) -> int:
                     metrics = result["validation_at_selected_threshold"]
                     print(f"{name}: ROC-AUC={metrics['roc_auc']:.6f}, AP={metrics['average_precision']:.6f}, F1={metrics['f1']:.6f}, threshold={metrics['threshold']:.6f}")
                 print("Report: reports/baseline.md")
+                return 0
+
+            if args.command in {"compare-models", "evaluate-test"}:
+                from credit_risk.modeling.compare import evaluate_final_test, run_comparison
+                from credit_risk.modeling.train import load_baseline_config
+
+                assignments = load_splits(dataset, processed_dir)
+                reports_dir = Path.cwd() / "reports"
+                artifacts_dir = Path.cwd() / "artifacts" / "selected"
+                if args.command == "compare-models":
+                    config = load_baseline_config(Path.cwd() / "configs" / "training.yaml")
+                    summary = run_comparison(
+                        dataset, assignments, config,
+                        reports_dir=reports_dir, artifacts_dir=artifacts_dir,
+                    )
+                    for name, metrics in summary["validation_metrics"].items():
+                        print(f"{name}: ROC-AUC={metrics['roc_auc']:.6f}, AP={metrics['average_precision']:.6f}, F1={metrics['f1']:.6f}")
+                    print(f"Selected: {summary['selected_model']}; threshold={summary['selected_threshold']:.8f}")
+                    print("Test not evaluated. Report: reports/comparison.md")
+                else:
+                    result = evaluate_final_test(
+                        dataset, assignments, reports_dir=reports_dir, artifacts_dir=artifacts_dir,
+                    )
+                    metrics = result["metrics"]
+                    print(f"OK: final test evaluated for {result['selected_model']}; clients={result['test_clients']}")
+                    print(f"ROC-AUC={metrics['roc_auc']:.6f}, AP={metrics['average_precision']:.6f}, F1={metrics['f1']:.6f}")
+                    print("Report: reports/final_test.md")
                 return 0
 
             if args.command == "run-eda":

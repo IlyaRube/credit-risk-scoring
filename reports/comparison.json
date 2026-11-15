@@ -1,0 +1,403 @@
+{
+  "stage": 5,
+  "seed": 42,
+  "train_clients": 18000,
+  "validation_clients": 6000,
+  "test_clients_reserved": 6000,
+  "test_evaluated": false,
+  "split_sha256": "0daf2582496a2db65d60eedad81126db12c7f95e8535fdb906e1cd83494042cd",
+  "development_sha256": "34baab4cf31f2d47fab0591a64c597e8603bd05ad53e4579193e0b7b3391411c",
+  "input_features": [
+    "limit_bal",
+    "sex",
+    "education",
+    "marriage",
+    "age",
+    "repayment_status_m1",
+    "repayment_status_m2",
+    "repayment_status_m3",
+    "repayment_status_m4",
+    "repayment_status_m5",
+    "repayment_status_m6",
+    "bill_amount_m1",
+    "bill_amount_m2",
+    "bill_amount_m3",
+    "bill_amount_m4",
+    "bill_amount_m5",
+    "bill_amount_m6",
+    "payment_amount_m1",
+    "payment_amount_m2",
+    "payment_amount_m3",
+    "payment_amount_m4",
+    "payment_amount_m5",
+    "payment_amount_m6",
+    "max_repayment_status",
+    "delinquent_month_count",
+    "avg_bill_amount",
+    "avg_payment_amount",
+    "total_payment_amount",
+    "bill_amount_change_6m",
+    "payment_to_abs_bill_ratio"
+  ],
+  "versions": {
+    "numpy": "2.5.4",
+    "pandas": "3.1.0",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "baseline_configuration": {
+    "C": 1.0,
+    "max_iter": 2000,
+    "solver": "lbfgs"
+  },
+  "search_configuration": {
+    "folds": 3,
+    "scoring": "roc_auc",
+    "grids": {
+      "random_forest": {
+        "model__max_depth": [
+          8,
+          null
+        ],
+        "model__min_samples_leaf": [
+          5,
+          20
+        ]
+      },
+      "hist_gradient_boosting": {
+        "model__learning_rate": [
+          0.05,
+          0.1
+        ],
+        "model__max_leaf_nodes": [
+          15,
+          31
+        ]
+      }
+    },
+    "random_forest_n_estimators": 120,
+    "boosting_max_iter": 120,
+    "random_forest_max_features": "sqrt",
+    "boosting_min_samples_leaf": 20,
+    "boosting_early_stopping": false
+  },
+  "selection_rule": "Highest validation ROC-AUC, then AP, then lower Brier, then fixed candidate order.",
+  "threshold_rule": "max validation F1; highest threshold for exact ties; predict >= threshold",
+  "validation_metrics": {
+    "dummy": {
+      "threshold": 0.2212222222222222,
+      "roc_auc": 0.5,
+      "average_precision": 0.22116666666666668,
+      "brier_score": 0.17225197530864197,
+      "precision": 0.22116666666666668,
+      "recall": 1.0,
+      "f1": 0.362221918929985,
+      "confusion_matrix": [
+        [
+          0,
+          4673
+        ],
+        [
+          0,
+          1327
+        ]
+      ]
+    },
+    "logistic": {
+      "threshold": 0.2578037931380188,
+      "roc_auc": 0.7567481488278396,
+      "average_precision": 0.5162305512950288,
+      "brier_score": 0.14023605530729324,
+      "precision": 0.4989648033126294,
+      "recall": 0.544837980406933,
+      "f1": 0.520893371757925,
+      "confusion_matrix": [
+        [
+          3947,
+          726
+        ],
+        [
+          604,
+          723
+        ]
+      ]
+    },
+    "random_forest": {
+      "threshold": 0.2719445623790267,
+      "roc_auc": 0.7762691315742071,
+      "average_precision": 0.5423652614880861,
+      "brier_score": 0.13724555429976562,
+      "precision": 0.5086321381142098,
+      "recall": 0.5772418990203466,
+      "f1": 0.5407695022943876,
+      "confusion_matrix": [
+        [
+          3933,
+          740
+        ],
+        [
+          561,
+          766
+        ]
+      ]
+    },
+    "hist_gradient_boosting": {
+      "threshold": 0.2610171716843173,
+      "roc_auc": 0.777226869358535,
+      "average_precision": 0.5413346536937974,
+      "brier_score": 0.13726579177549078,
+      "precision": 0.5095759233926128,
+      "recall": 0.5614167294649586,
+      "f1": 0.5342416636787379,
+      "confusion_matrix": [
+        [
+          3956,
+          717
+        ],
+        [
+          582,
+          745
+        ]
+      ]
+    }
+  },
+  "cv_results": {
+    "random_forest": {
+      "best_params": {
+        "model__max_depth": null,
+        "model__min_samples_leaf": 20
+      },
+      "best_mean_cv_roc_auc": 0.7833722352013684,
+      "trials": [
+        {
+          "params": {
+            "model__max_depth": 8,
+            "model__min_samples_leaf": 5
+          },
+          "mean_cv_roc_auc": 0.7805319143633512,
+          "std_cv_roc_auc": 0.006419080956564158
+        },
+        {
+          "params": {
+            "model__max_depth": 8,
+            "model__min_samples_leaf": 20
+          },
+          "mean_cv_roc_auc": 0.7809792808137095,
+          "std_cv_roc_auc": 0.006497506652848751
+        },
+        {
+          "params": {
+            "model__max_depth": null,
+            "model__min_samples_leaf": 5
+          },
+          "mean_cv_roc_auc": 0.7786825241939361,
+          "std_cv_roc_auc": 0.007180870195785582
+        },
+        {
+          "params": {
+            "model__max_depth": null,
+            "model__min_samples_leaf": 20
+          },
+          "mean_cv_roc_auc": 0.7833722352013684,
+          "std_cv_roc_auc": 0.006258536069557061
+        }
+      ]
+    },
+    "hist_gradient_boosting": {
+      "best_params": {
+        "model__learning_rate": 0.05,
+        "model__max_leaf_nodes": 15
+      },
+      "best_mean_cv_roc_auc": 0.7839239842781834,
+      "trials": [
+        {
+          "params": {
+            "model__learning_rate": 0.05,
+            "model__max_leaf_nodes": 15
+          },
+          "mean_cv_roc_auc": 0.7839239842781834,
+          "std_cv_roc_auc": 0.007559399873099455
+        },
+        {
+          "params": {
+            "model__learning_rate": 0.05,
+            "model__max_leaf_nodes": 31
+          },
+          "mean_cv_roc_auc": 0.783773584211578,
+          "std_cv_roc_auc": 0.009249844202735731
+        },
+        {
+          "params": {
+            "model__learning_rate": 0.1,
+            "model__max_leaf_nodes": 15
+          },
+          "mean_cv_roc_auc": 0.7826923784143425,
+          "std_cv_roc_auc": 0.008819692502027954
+        },
+        {
+          "params": {
+            "model__learning_rate": 0.1,
+            "model__max_leaf_nodes": 31
+          },
+          "mean_cv_roc_auc": 0.7761727560475137,
+          "std_cv_roc_auc": 0.011321331292053005
+        }
+      ]
+    }
+  },
+  "selected_model": "hist_gradient_boosting",
+  "selected_threshold": 0.2610171716843173,
+  "validation_permutation_importance": [
+    {
+      "feature": "delinquent_month_count",
+      "mean_auc_decrease": 0.1258351178369027,
+      "std": 0.0028608004072372974
+    },
+    {
+      "feature": "limit_bal",
+      "mean_auc_decrease": 0.017954801678613297,
+      "std": 0.0018506418123882186
+    },
+    {
+      "feature": "repayment_status_m6",
+      "mean_auc_decrease": 0.016945809307241655,
+      "std": 0.001415038371437345
+    },
+    {
+      "feature": "avg_payment_amount",
+      "mean_auc_decrease": 0.008109432494268579,
+      "std": 0.00045012879229580264
+    },
+    {
+      "feature": "payment_amount_m4",
+      "mean_auc_decrease": 0.005147121628935825,
+      "std": 0.0005475372871457822
+    },
+    {
+      "feature": "payment_amount_m5",
+      "mean_auc_decrease": 0.004228463115484489,
+      "std": 0.0006602855214011686
+    },
+    {
+      "feature": "bill_amount_m6",
+      "mean_auc_decrease": 0.0041977963699066185,
+      "std": 0.00042888424235393665
+    },
+    {
+      "feature": "bill_amount_m5",
+      "mean_auc_decrease": 0.0036800363464096764,
+      "std": 0.00017745877847540599
+    },
+    {
+      "feature": "payment_to_abs_bill_ratio",
+      "mean_auc_decrease": 0.0035626910254696886,
+      "std": 0.00015250034426990292
+    },
+    {
+      "feature": "bill_amount_change_6m",
+      "mean_auc_decrease": 0.0029254623918997615,
+      "std": 0.0008124757867672583
+    },
+    {
+      "feature": "avg_bill_amount",
+      "mean_auc_decrease": 0.001966192614146841,
+      "std": 0.00027329102070735645
+    },
+    {
+      "feature": "payment_amount_m3",
+      "mean_auc_decrease": 0.0019257426123111914,
+      "std": 0.0006134268909266658
+    },
+    {
+      "feature": "education",
+      "mean_auc_decrease": 0.0018921193881938543,
+      "std": 0.0006481300346823089
+    },
+    {
+      "feature": "bill_amount_m4",
+      "mean_auc_decrease": 0.0018598937721134856,
+      "std": 0.001134178744831803
+    },
+    {
+      "feature": "payment_amount_m6",
+      "mean_auc_decrease": 0.0012737047089661502,
+      "std": 0.0005408507235210262
+    },
+    {
+      "feature": "bill_amount_m2",
+      "mean_auc_decrease": 0.001241747863662046,
+      "std": 0.0004181511293167796
+    },
+    {
+      "feature": "payment_amount_m1",
+      "mean_auc_decrease": 0.0010161954281769174,
+      "std": 0.0010542838450826643
+    },
+    {
+      "feature": "bill_amount_m3",
+      "mean_auc_decrease": 0.001007406623791322,
+      "std": 0.0008470668674054131
+    },
+    {
+      "feature": "max_repayment_status",
+      "mean_auc_decrease": 0.0007597612304928539,
+      "std": 8.06955062068488e-05
+    },
+    {
+      "feature": "sex",
+      "mean_auc_decrease": 0.0005775883983052029,
+      "std": 0.0001829506189549723
+    },
+    {
+      "feature": "marriage",
+      "mean_auc_decrease": 0.0002974486181500276,
+      "std": 6.840877855494417e-05
+    },
+    {
+      "feature": "payment_amount_m2",
+      "mean_auc_decrease": 0.00024299565886820584,
+      "std": 0.0004067877868459792
+    },
+    {
+      "feature": "bill_amount_m1",
+      "mean_auc_decrease": 0.00017354529026788099,
+      "std": 9.761840436349318e-05
+    },
+    {
+      "feature": "repayment_status_m2",
+      "mean_auc_decrease": 0.0001575803061546477,
+      "std": 4.322738248482801e-05
+    },
+    {
+      "feature": "repayment_status_m1",
+      "mean_auc_decrease": 0.00013591738158350944,
+      "std": 0.00012412149894030402
+    },
+    {
+      "feature": "repayment_status_m5",
+      "mean_auc_decrease": 9.957957262544485e-05,
+      "std": 7.407820916218206e-05
+    },
+    {
+      "feature": "repayment_status_m4",
+      "mean_auc_decrease": 9.261840951879652e-05,
+      "std": 0.00012865235339732986
+    },
+    {
+      "feature": "repayment_status_m3",
+      "mean_auc_decrease": 8.65441899744468e-06,
+      "std": 7.496977198605738e-05
+    },
+    {
+      "feature": "total_payment_amount",
+      "mean_auc_decrease": 0.0,
+      "std": 0.0
+    },
+    {
+      "feature": "age",
+      "mean_auc_decrease": -5.7463191976599624e-05,
+      "std": 0.00020617981029411305
+    }
+  ],
+  "pipeline_sha256": "1370a751a6147bed4c257c0d9f1da328b02131df902fff44d6d92dd31009f3f7"
+}
